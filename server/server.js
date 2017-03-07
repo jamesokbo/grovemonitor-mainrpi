@@ -7,16 +7,15 @@ var http= require('http').Server(app);
 var monitorIO=require('socket.io')(http);
 
 var mongoose= require('mongoose');
-var configDB= require('./server/config/database.js');
+var configDB= require('./config/database.js');
 mongoose.connect(configDB.url);
 
 var envVariables=require('./envVariables.js');
 var constants=require('./constants.js');
 
 //MONGOOSE SCHEMAS
-
-//Mongoose ResMonitor and its sensor readings' schemas
-var Monitor=require('./server/models/monitor');
+var Monitor=require('./models/monitor');
+var MainRPi=require('./models/mainRPi');
 //TODO: Add Actuators arrays and schemas
 
 //TODO: ADD SOCKETIO COMMUNICATIONS
@@ -29,9 +28,30 @@ require('./sockets/serverSockets/disconnect.js')(serverSocket);
 //require('./sockets/serverSockets/editLBound.js')(serverSocket);
 //TODO: Test 'editLBound' script and create 'editUBound'
 
+//TODO: Add SocketIO communication protocol with the monitors
+monitorIO.on('connection', function(monitorSocket){
+  monitorSocket.monitorID='';
+  require('./sockets/monitorSockets/monitorIdentification.js')(monitorSocket,serverSocket);
+  require('./sockets/monitorSockets/disconnect.js')(monitorSocket,serverSocket);
+});
+
+//TODO: Add SocketIO communication protocol with the actuators
+
+//Initialize server
+MainRPi.find({},function(err,docs){
+  if(err){
+    throw err;
+  }
+  if(docs.length>0){
+    constants.MAINRPI_ID=docs[0].mainRPiID;  
+  }
+  else{
+    constants.MAINRPI_ID='';
+  }
+});
+
 async.whilst(function(){return !envVariables.serverConnectionStatus},
   function(cb){
-      console.log('attempting to connect');
       setTimeout(function(){
          serverSocket.connect();
          cb();
@@ -39,17 +59,6 @@ async.whilst(function(){return !envVariables.serverConnectionStatus},
   }
 );
 
-//TODO: Add SocketIO communication protocol with the monitors
-monitorIO.on('connection', function(monitorSocket){
-  monitorSocket.monitorID='';
-  require('./sockets/monitorSockets/monitorIdentification.js')(monitorSocket,serverSocket);
-  require('./sockets/monitorSockets/rReading.js')(monitorSocket,serverSocket);
-  require('./sockets/monitorSockets/disconnect.js')(monitorSocket,serverSocket);
-});
-
-//TODO: Add SocketIO communication protocol with the actuators
-
-//Initialize server
 Monitor.update({},{$set:{status:false}},{multi:true},function(err,res){
   if(err){
     throw err;
@@ -60,3 +69,4 @@ Monitor.update({},{$set:{status:false}},{multi:true},function(err,res){
     });
   }
 });
+

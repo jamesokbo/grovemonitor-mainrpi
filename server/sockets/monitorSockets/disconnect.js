@@ -1,6 +1,6 @@
 var mongoose=require('mongoose');
 var errors=require(__dirname+'/../../errors.js');
-var Monitor=require(__dirname+'/../../server/models/monitor.js');
+var Monitor=require('../../models/monitor.js');
 var envVariables=require(__dirname+'/../../envVariables.js');
 
 module.exports=function(monitorSocket,serverSocket){
@@ -13,6 +13,7 @@ module.exports=function(monitorSocket,serverSocket){
         }
         if(res.ok==1 && res.nModified==1){
           if(envVariables.monitorIDs.indexOf(monitorSocket.monitorID.toString())!=-1){
+            var monitorIndex=envVariables.monitorIDs.indexOf(monitorSocket.monitorID.toString());
             envVariables.monitors.splice(envVariables.monitorIDs.indexOf(monitorSocket.monitorID.toString()),1);
             envVariables.monitorIDs.splice(envVariables.monitorIDs.indexOf(monitorSocket.monitorID.toString()),1);
             if(envVariables.serverConnectionStatus){

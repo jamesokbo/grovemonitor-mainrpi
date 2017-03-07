@@ -1,37 +1,42 @@
-var fs=require('fs');
-var async=require('async');
-var constants= require(__dirname+'/../../../constants.js');
-var envVariables=require(__dirname+'/../../../envVariables.js');
-var Reading=require(__dirname+'/../../../server/models/reading.js');
-var emitMonitorIdentification=require('./emitMonitorIdentification.js');
-var emitRReading=require('./emitRReading.js');
+var constants= require(__dirname+'/../../constants.js');
+var envVariables=require(__dirname+'/../../envVariables.js');
+var Reading=require('../../models/reading.js');
+var MainRPi=require('../../models/mainRPi.js');
+var emitRReading=require(__dirname+'/emits/emitRReading');
+var emitConnectedMonitors=require(__dirname+'/emits/emitConnectedMonitors');
 
-module.exports=function(socket){
-  fs.readFile(__dirname+'/../../mainRPiID.txt','utf8',function(err,data){
-    if(err){
-      throw err;
-    }
-    constants.MAINRPI_ID=data;
-    console.log("mainRPiID: "+ data);
+module.exports = function(socket){
+  socket.on('connect',function(){
     socket.emit('mainRPiIdentification', {mainRPiID: constants.MAINRPI_ID}, function(err,res){
       if(err){
         console.log(err);
       }
       if(res.status){
         if(res.new){
-          fs.writeFile(__dirname+'/../../mainRPiID.txt', res.mainRPiID, 'utf8', function(err){
+          var mainRPi= new MainRPi();
+          mainRPi.save(function(err,mon){
             if(err){
               throw err;
             }
-            constants.MAINRPI_ID=res.id;
-            socket.disconnect();
+            MainRPi.update({_id:mon._id},{$set:{mainRPiID:res.mainRPiID}},function(err,response){
+              if(err){
+                throw err;
+              }
+              constants.MAINRPI_ID=res.mainRPiID;
+              socket.disconnect();
+            });
           });
         }
         else{
+          console.log("succesfully connected to server!");
           envVariables.serverConnectionStatus=true;
-          //MainRPi states what monitors are currently connected to it for the server to identify them
+          
           for(var i=0; i<envVariables.monitors.length;i++){
-            emitMonitorIdentification({monitorID:envVariables.monitorIDs[i]},envVariables.monitors[i],socket,function(err,res){
+            var data={
+              monitorID:envVariables.monitors[i],
+              mainRPiID:constants.MAINRPI_ID
+            };
+            emitConnectedMonitors(socket,data,function(err,res){
               if(err){
                 //TODO: Log error in file
               }
@@ -59,12 +64,6 @@ module.exports=function(socket){
           });
         }
       }
-      else{
-        if(res.error){
-          console.log(res.error);
-        }
-        socket.disconnect();
-      }
     });
-  });
+  }); 
 };

@@ -1,13 +1,13 @@
 var mongoose=require('mongoose');
 var timeoutCallback = require('timeout-callback');
-var Monitor=require('../models/monitor.js');
+var Monitor=require('../../models/monitor.js');
 var envVariables=require('../../envVariables.js');
 var constants=require('../../constants.js');
 var errors=require('../../errors.js');
 
 module.exports=function(socket){
   socket.on('editLBound',function(data,fn){
-    Monitor.find({_id:data.monitorID},function(err,docs){
+    Monitor.find({monitorID:data.monitorID},function(err,docs){
       if(err){
         throw err;
       }
@@ -19,7 +19,18 @@ module.exports=function(socket){
               fn(err);
             }
             //success!
-            fn(null,res);
+            if(res.status){
+                var lBoundString=data.sensor+'.lBound';
+                var setLBound={};
+                setLBound[lBoundString]=Number(data.newLBound);
+                Monitor.update({monitorID:data.monitorID},
+                {$set:setLBound},function(err,doc){
+                  if(err){
+                    throw err;
+                  }
+                  fn(null,res);
+                });
+            }
           }));
         }
         else{

@@ -3,7 +3,7 @@ var Schema=mongoose.Schema;
 var monitorSchema= mongoose.Schema({
     monitorID:String, /*ID assigned by the server on first 'identification', kept as a .txt file in the Monitor*/
     mainRPiID:String, /*main RPi's ID to whom this resMonitor belongs to*/
-    name:String, /*name of the monitor, assigned by the user*/
+    name:{type:String,default:'New Monitor'}, /*name of the monitor, assigned by the user*/
     status: Boolean, /*true if connected to the main RPi*/
     lastConnection: Number, /*Last connection to the main RPi*/
     sensors:[String], /*Name of the sensors connected to this monitor (the user is the one who says which sensors are connected) */
@@ -86,8 +86,8 @@ var monitorSchema= mongoose.Schema({
         }
     },
     //TODO: Still have to chose how to handle the water level
-    usReader: {status: String, lastReading:Number, lastDate:Number}, /*last distance reading*/
-    resLevel: {lastReading:Number, lastDate:Number, lBound:Number, uBound:Number}, /* % of capacity */
+    //usReader: {status: String, lastReading:Number, lastDate:Number}, /*last distance reading*/
+    //resLevel: {lastReading:Number, lastDate:Number, lBound:Number, uBound:Number}, /* % of capacity */
 });
 
 module.exports=mongoose.model('Monitor',monitorSchema);

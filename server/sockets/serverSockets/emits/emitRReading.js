@@ -1,4 +1,3 @@
-var fs=require('fs');
 var async=require('async');
 var constants= require(__dirname+'/../../../constants.js');
 var envVariables=require(__dirname+'/../../../envVariables.js');

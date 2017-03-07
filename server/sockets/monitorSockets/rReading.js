@@ -1,8 +1,7 @@
-var RReading=require('../../../server/models/rReading.js');
+var RReading=require('../../models/rReading.js');
 var emitRReading=require('../serverSockets/emits/emitRReading.js');
 var envVariables=require('../../../envVariables.js');
 var errors=require('../../../errors.js');
-var rReading;
 
 module.exports=function(socket, serverSocket){
   socket.on('rReading',function(data,fn){
