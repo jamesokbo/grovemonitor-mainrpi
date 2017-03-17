@@ -1,5 +1,6 @@
 var constants= require(__dirname+'/../../constants.js');
 var envVariables=require(__dirname+'/../../envVariables.js');
+var monitorArrays=require('../../monitorArrays.js');
 var Reading=require('../../models/reading.js');
 var MainRPi=require('../../models/mainRPi.js');
 var emitRReading=require(__dirname+'/emits/emitRReading');
@@ -31,9 +32,9 @@ module.exports = function(socket){
           console.log("succesfully connected to server!");
           envVariables.serverConnectionStatus=true;
           
-          for(var i=0; i<envVariables.monitors.length;i++){
+          for(var i=0; i<monitorArrays.monitors.length;i++){
             var data={
-              monitorID:envVariables.monitors[i],
+              monitorID:monitorArrays.monitors[i],
               mainRPiID:constants.MAINRPI_ID
             };
             emitConnectedMonitors(socket,data,function(err,res){

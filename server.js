@@ -7,32 +7,31 @@ var http= require('http').Server(app);
 var monitorIO=require('socket.io')(http);
 
 var mongoose= require('mongoose');
-var configDB= require('./config/database.js');
+var configDB= require('./server/config/database.js');
 mongoose.connect(configDB.url);
 
-var envVariables=require('./envVariables.js');
-var constants=require('./constants.js');
+var envVariables=require('./server/envVariables.js');
+var constants=require('./server/constants.js');
 
 //MONGOOSE SCHEMAS
-var Monitor=require('./models/monitor');
-var MainRPi=require('./models/mainRPi');
+var Monitor=require('./server/models/monitor');
+var MainRPi=require('./server/models/mainRPi');
 //TODO: Add Actuators arrays and schemas
 
 //TODO: ADD SOCKETIO COMMUNICATIONS
 //TODO: Add SocketIO communication protocol with the server
 //-Pass requests from server to monitors
 var serverSocket=require('socket.io-client')(constants.SERVER_URL);
-require('./sockets/serverSockets/connection.js')(serverSocket);
-require('./sockets/serverSockets/mReading.js')(serverSocket);
-require('./sockets/serverSockets/disconnect.js')(serverSocket);
-//require('./sockets/serverSockets/editLBound.js')(serverSocket);
-//TODO: Test 'editLBound' script and create 'editUBound'
+require('./server/sockets/serverSockets/addSensor.js')(serverSocket);
+require('./server/sockets/serverSockets/connection.js')(serverSocket);
+require('./server/sockets/serverSockets/mReading.js')(serverSocket);
+require('./server/sockets/serverSockets/disconnect.js')(serverSocket);
 
 //TODO: Add SocketIO communication protocol with the monitors
 monitorIO.on('connection', function(monitorSocket){
   monitorSocket.monitorID='';
-  require('./sockets/monitorSockets/monitorIdentification.js')(monitorSocket,serverSocket);
-  require('./sockets/monitorSockets/disconnect.js')(monitorSocket,serverSocket);
+  require('./server/sockets/monitorSockets/monitorIdentification.js')(monitorSocket,serverSocket);
+  require('./server/sockets/monitorSockets/disconnect.js')(monitorSocket,serverSocket);
 });
 
 //TODO: Add SocketIO communication protocol with the actuators
