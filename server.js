@@ -21,7 +21,7 @@ var MainRPi=require('./server/models/mainRPi');
 //TODO: ADD SOCKETIO COMMUNICATIONS
 //TODO: Add SocketIO communication protocol with the server
 //-Pass requests from server to monitors
-var serverSocket=require('socket.io-client')(constants.SERVER_URL);
+var serverSocket=require('socket.io-client')(constants.SERVER_URL,{reconnect:true});
 require('./server/sockets/serverSockets/addSensor.js')(serverSocket);
 require('./server/sockets/serverSockets/connection.js')(serverSocket);
 require('./server/sockets/serverSockets/mReading.js')(serverSocket);
@@ -48,15 +48,6 @@ MainRPi.find({},function(err,docs){
     constants.MAINRPI_ID='';
   }
 });
-
-async.whilst(function(){return !envVariables.serverConnectionStatus},
-  function(cb){
-      setTimeout(function(){
-         serverSocket.connect();
-         cb();
-      },1000); 
-  }
-);
 
 Monitor.update({},{$set:{status:false}},{multi:true},function(err,res){
   if(err){

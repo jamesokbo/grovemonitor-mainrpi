@@ -8,14 +8,6 @@ var Reading=require('../../models/reading.js');
 module.exports = function(socket){
   socket.on('disconnect',function(){
     console.log('disconnected from server!');
-    async.whilst(function(){return !envVariables.serverConnectionStatus},
-        function(cb){
-            setTimeout(function(){
-                socket.connect();
-                cb();
-            },1000); 
-        }
-    );
     envVariables.serverConnectionStatus=false;
   });
 };
