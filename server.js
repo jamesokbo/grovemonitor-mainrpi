@@ -21,7 +21,7 @@ var MainRPi=require('./server/models/mainRPi');
 //TODO: ADD SOCKETIO COMMUNICATIONS
 //TODO: Add SocketIO communication protocol with the server
 //-Pass requests from server to monitors
-var serverSocket=require('socket.io-client')(constants.SERVER_URL,{reconnect:true});
+var serverSocket=require('socket.io-client')(constants.SERVER_URL,{reconnection: true});
 require('./server/sockets/serverSockets/addSensor.js')(serverSocket);
 require('./server/sockets/serverSockets/connection.js')(serverSocket);
 require('./server/sockets/serverSockets/mReading.js')(serverSocket);
@@ -32,6 +32,7 @@ monitorIO.on('connection', function(monitorSocket){
   monitorSocket.monitorID='';
   require('./server/sockets/monitorSockets/monitorIdentification.js')(monitorSocket,serverSocket);
   require('./server/sockets/monitorSockets/disconnect.js')(monitorSocket,serverSocket);
+  require('./server/sockets/monitorSockets/emits/statusCheckRoutine.js');
 });
 
 //TODO: Add SocketIO communication protocol with the actuators

@@ -7,7 +7,8 @@ module.exports=function(serverSocket,data,fn){
    if(envVariables.serverConnectionStatus){
       serverSocket.emit('monitorIdentification',data,function(err,res){
          if(err){
-            throw err;
+            //TODO:log error in logfile
+            fn(err);
          }
          fn(null,res);
       });

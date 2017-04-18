@@ -3,6 +3,7 @@ var Monitor=require('../../models/monitor.js');
 var errors=require('../../errors.js');
 var envVariables=require(__dirname+'/../../envVariables.js');
 var monitorArrays=require('../../monitorArrays.js');
+var emitConnectedMonitors=require('../serverSockets/emits/emitConnectedMonitors');
 
 module.exports=function(monitorSocket,serverSocket){
     monitorSocket.on('monitorIdentification',function(data, fn){
@@ -29,11 +30,13 @@ module.exports=function(monitorSocket,serverSocket){
                 monitorArrays.monitors.push(monitorSocket);
                 console.log('monitorIDs length: '+ monitorArrays.monitorIDs.length+',monitors length: '+monitorArrays.monitors.length);
                 if(envVariables.serverConnectionStatus){
-                  serverSocket.emit('monitorIdentification',data,function(err,res){
-                      if(err){
-                          fn(err);
-                      }
-                      fn(null,res);
+                  emitConnectedMonitors(serverSocket,data,function(err,res){
+                    if(err){
+                      //TODO: Log error in file
+                    }
+                    else{
+                      fn(null,res); 
+                    }
                   });   
                 }
                 else{

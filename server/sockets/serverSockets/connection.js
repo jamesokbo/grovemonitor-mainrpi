@@ -29,18 +29,18 @@ module.exports = function(socket){
           });
         }
         else{
-          console.log("succesfully connected to server!");
           envVariables.serverConnectionStatus=true;
           
           for(var i=0; i<monitorArrays.monitors.length;i++){
             var data={
-              monitorID:monitorArrays.monitors[i],
+              monitorID:monitorArrays.monitors[i].monitorID.toString(),
               mainRPiID:constants.MAINRPI_ID
             };
             emitConnectedMonitors(socket,data,function(err,res){
               if(err){
                 //TODO: Log error in file
               }
+              console.log("monitor "+data.monitorID+" has succesfully been identified!");
             });
           }
           //MainRPi passes readings obtained while server connection was down and removes them afterwards
