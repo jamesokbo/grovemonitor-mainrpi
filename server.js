@@ -27,12 +27,14 @@ require('./server/sockets/serverSockets/connection.js')(serverSocket);
 require('./server/sockets/serverSockets/mReading.js')(serverSocket);
 require('./server/sockets/serverSockets/disconnect.js')(serverSocket);
 
+var statuscheck=require('socketio-statuscheck');
+
 //TODO: Add SocketIO communication protocol with the monitors
 monitorIO.on('connection', function(monitorSocket){
+  statuscheck(monitorSocket,'server');
   monitorSocket.monitorID='';
   require('./server/sockets/monitorSockets/monitorIdentification.js')(monitorSocket,serverSocket);
   require('./server/sockets/monitorSockets/disconnect.js')(monitorSocket,serverSocket);
-  require('./server/sockets/monitorSockets/emits/statusCheckRoutine.js');
 });
 
 //TODO: Add SocketIO communication protocol with the actuators

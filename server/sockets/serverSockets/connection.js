@@ -5,9 +5,11 @@ var Reading=require('../../models/reading.js');
 var MainRPi=require('../../models/mainRPi.js');
 var emitRReading=require(__dirname+'/emits/emitRReading');
 var emitConnectedMonitors=require(__dirname+'/emits/emitConnectedMonitors');
+var statuscheck=require('socketio-statuscheck');
 
 module.exports = function(socket){
   socket.on('connect',function(){
+    statuscheck(socket,'client');
     socket.emit('mainRPiIdentification', {mainRPiID: constants.MAINRPI_ID}, function(err,res){
       if(err){
         console.log(err);
